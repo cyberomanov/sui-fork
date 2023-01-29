@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::node::AuthorityStorePruningConfig;
-use crate::node::{
-    default_checkpoints_per_epoch, default_end_of_epoch_broadcast_channel_capacity,
-    AuthorityKeyPairWithPath, KeyPairWithPath,
-};
+use crate::node::{default_checkpoints_per_epoch, AuthorityKeyPairWithPath, KeyPairWithPath};
 use crate::p2p::{P2pConfig, SeedPeer};
 use crate::{builder, genesis, utils, Config, NodeConfig, ValidatorInfo};
 use fastcrypto::traits::KeyPair;
@@ -185,7 +182,7 @@ impl<'a> FullnodeConfigBuilder<'a> {
         let network_address = format!(
             "/ip4/{}/tcp/{}/http",
             listen_ip,
-            self.port.unwrap_or_else(|| get_available_port(8080))
+            self.port.unwrap_or_else(|| get_available_port(18080))
         )
         .parse()
         .unwrap();
@@ -193,7 +190,7 @@ impl<'a> FullnodeConfigBuilder<'a> {
         let p2p_config = {
             let address = SocketAddr::new(
                 listen_ip,
-                self.p2p_port.unwrap_or_else(|| get_available_port(8084)),
+                self.p2p_port.unwrap_or_else(|| get_available_port(18084)),
             );
             let seed_peers = validator_configs
                 .iter()
@@ -213,7 +210,7 @@ impl<'a> FullnodeConfigBuilder<'a> {
             }
         };
 
-        let rpc_port = self.rpc_port.unwrap_or_else(|| get_available_port(9000));
+        let rpc_port = self.rpc_port.unwrap_or_else(|| get_available_port(19000));
         let jsonrpc_server_url = format!("{}:{}", listen_ip, rpc_port);
         let json_rpc_address: SocketAddr = jsonrpc_server_url.parse().unwrap();
 
@@ -228,7 +225,7 @@ impl<'a> FullnodeConfigBuilder<'a> {
             metrics_address: utils::available_local_socket_address(),
             // TODO: admin server is hard coded to start on 127.0.0.1 - we should probably
             // provide the entire socket address here to avoid confusion.
-            admin_interface_port: self.admin_port.unwrap_or_else(|| get_available_port(8888)),
+            admin_interface_port: self.admin_port.unwrap_or_else(|| get_available_port(18888)),
             json_rpc_address,
             consensus_config: None,
             enable_event_processing: self.enable_event_store,
@@ -238,8 +235,6 @@ impl<'a> FullnodeConfigBuilder<'a> {
             grpc_concurrency_limit: None,
             p2p_config,
             authority_store_pruning_config: AuthorityStorePruningConfig::fullnode_config(),
-            end_of_epoch_broadcast_channel_capacity:
-                default_end_of_epoch_broadcast_channel_capacity(),
             checkpoint_executor_config: Default::default(),
         })
     }
